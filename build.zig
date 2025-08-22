@@ -29,6 +29,10 @@ pub fn build(b: *std.Build) void {
     });
 
     const win32 = b.dependency("zigwin32", .{}).module("win32");
+    const zigimg = b.dependency("zigimg", .{
+        .target = target,
+        .optimize = optimize,
+    }).module("zigimg");
 
     // We will also create a module for our other entry point, 'main.zig'.
     const exe_mod = b.createModule(.{
@@ -46,6 +50,7 @@ pub fn build(b: *std.Build) void {
     // file path. In this case, we set up `exe_mod` to import `lib_mod`.
     exe_mod.addImport("neenawyn_lib", lib_mod);
     exe_mod.addImport("win32", win32);
+    exe_mod.addImport("zigimg", zigimg);
 
     // Now, we will create a static library based on the module we created above.
     // This creates a `std.Build.Step.Compile`, which is the build step responsible

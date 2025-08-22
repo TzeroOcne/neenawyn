@@ -1,39 +1,96 @@
-//! By convention, main.zig is where your main function lives in the case that
-//! you are building an executable. If you are making a library, the convention
-//! is to delete this file and start with root.zig instead.
-
 const std = @import("std");
-const lib = @import("neenawyn_lib");
 const win32 = @import("win32");
+const zigimg = @import("zigimg");
 
 pub const UNICODE = true;
-
 const gui = win32.ui.windows_and_messaging;
 const gdi = win32.graphics.gdi;
+const xps = win32.storage.xps;
 
 pub fn main() !void {
+    const allocator = std.heap.page_allocator;
+
     const window_name = std.unicode.utf8ToUtf16LeStringLiteral("Calculator");
 
     _ = gui.SetProcessDPIAware();
 
     const hwnd = gui.FindWindow(null, window_name);
+    if (hwnd == null) return error.WindowNotFound;
+
     var rect: win32.foundation.RECT = undefined;
     _ = gui.GetWindowRect(hwnd, &rect);
-
-    std.debug.print("Window handle: {?}\n", .{hwnd});
-    std.debug.print("Window rect: {d}, {d}, {d}, {d}\n", .{
-        rect.left, rect.top, rect.right, rect.bottom,
-    });
 
     const width = rect.right - rect.left;
     const height = rect.bottom - rect.top;
 
-    std.debug.print("Window size: {d}x{d}\n", .{ width, height });
-
+    // --- Setup DCs and bitmap ---
     const hwndDC = gdi.GetWindowDC(hwnd);
-    const compDC = gdi.CreateCompatibleDC(hwndDC);
+    defer _ = gdi.ReleaseDC(hwnd, hwndDC);
 
-    const bitmap = gdi.CreateCompatibleBitmap(compDC, width, height);
+    const memDC = gdi.CreateCompatibleDC(hwndDC);
+    defer _ = gdi.DeleteDC(memDC);
 
-    std.debug.print("Bitmap: {?}\n", .{bitmap});
+    const bitmap = gdi.CreateCompatibleBitmap(hwndDC, width, height);
+    defer _ = gdi.DeleteObject(bitmap);
+
+    const oldBitmap = gdi.SelectObject(memDC, bitmap);
+    defer _ = gdi.SelectObject(memDC, oldBitmap);
+
+    // --- Capture the window ---
+    const success = xps.PrintWindow(hwnd, memDC, xps.PRINT_WINDOW_FLAGS.C);
+    if (success == 0) return error.PrintWindowFailed;
+
+    // --- Convert HBITMAP to raw pixel buffer ---
+    var bmp_info: gdi.BITMAPINFO = .{
+        .bmiHeader = .{
+            .biSize = @sizeOf(gdi.BITMAPINFOHEADER),
+            .biWidth = width,
+            .biHeight = -height,
+            .biPlanes = 1,
+            .biBitCount = 32,
+            .biCompression = gdi.BI_RGB,
+            .biSizeImage = 0,
+            .biXPelsPerMeter = 0,
+            .biYPelsPerMeter = 0,
+            .biClrUsed = 0,
+            .biClrImportant = 0,
+        },
+        .bmiColors = [_]gdi.RGBQUAD{.{ .rgbBlue = 0, .rgbGreen = 0, .rgbRed = 0, .rgbReserved = 0 }},
+    };
+
+    const row_bytes = width * 4;
+    const total = row_bytes * height;
+    var pixels = try allocator.alloc(u8, @intCast(total));
+
+    const lines = gdi.GetDIBits(memDC, bitmap, 0, @intCast(height), &pixels[0], &bmp_info, gdi.DIB_RGB_COLORS);
+    if (lines == 0) return error.GetDIBitsFailed;
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+
+    const gpaallocator = gpa.allocator();
+
+    var image = try zigimg.Image.fromRawPixels(
+        gpaallocator,
+        @intCast(width),
+        @intCast(height),
+        pixels,
+        .bgra32,
+    );
+    defer image.deinit();
+
+    try image.writeToFilePath("screenshot.bmp", .{ .bmp = .{} });
+
+    //
+    // // --- Save using zigimg ---
+    // var img = try zigimg.Image(.{
+    //     .width = width,
+    //     .height = height,
+    //     .format = zigimg.PixelFormat.RGBA8,
+    //     .pixels = pixels,
+    // });
+    //
+    // try img.writePNG(allocator, "screenshot.png");
+    //
+    // std.debug.print("Saved screenshot.png\n", .{});
 }
