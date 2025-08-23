@@ -41,8 +41,8 @@
             .hash = "zigimg-0.1.0-8_eo2oFJEwDQjDFXp7mdV7KXQiMIRAYCl7Y0z91NdxG2",
         },
         .zli = .{
-            .url = "https://github.com/xcaeser/zli/archive/v4.0.3.tar.gz",
-            .hash = "zli-4.0.3-LeUjpi7cAACisGt17qJt7uGnnXS9f_xtU8VEGUfsT1G2",
+            .url = "git+https://github.com/olix3001/zli.git#d8d787c7cf0d6de95a364746112f2c3901d68fd0",
+            .hash = "zli-3.7.1-LeUjpgE3AQAkJqC3-cmeHGKFOWLj-m9SSY_sEwzqk2UB",
         },
     },
     .paths = .{

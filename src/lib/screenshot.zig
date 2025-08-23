@@ -1,8 +1,8 @@
 const std = @import("std");
 const zigimg = @import("zigimg");
-const win = @import("lib/win.zig");
+const win = @import("win.zig");
 
-pub fn exec(comptime title: []const u8) !void {
+pub fn capture(comptime title: []const u8) !void {
     const allocator = std.heap.page_allocator;
 
     const window_name = std.unicode.utf8ToUtf16LeStringLiteral(title);
