@@ -1,16 +1,18 @@
 const std = @import("std");
 const win32 = @import("win32");
 const zigimg = @import("zigimg");
+const win = @import("lib/win.zig");
 
 pub const UNICODE = true;
 const gui = win32.ui.windows_and_messaging;
 const gdi = win32.graphics.gdi;
+const dwm = win32.graphics.dwm;
 const xps = win32.storage.xps;
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
 
-    const window_name = std.unicode.utf8ToUtf16LeStringLiteral("Calculator");
+    const window_name = std.unicode.utf8ToUtf16LeStringLiteral("ZenlessZoneZero");
 
     _ = gui.SetProcessDPIAware();
 
@@ -18,7 +20,8 @@ pub fn main() !void {
     if (hwnd == null) return error.WindowNotFound;
 
     var rect: win32.foundation.RECT = undefined;
-    _ = gui.GetWindowRect(hwnd, &rect);
+    // _ = gui.GetWindowRect(hwnd, &rect);
+    _ = gui.GetClientRect(hwnd, &rect);
 
     const width = rect.right - rect.left;
     const height = rect.bottom - rect.top;
@@ -37,7 +40,7 @@ pub fn main() !void {
     defer _ = gdi.SelectObject(memDC, oldBitmap);
 
     // --- Capture the window ---
-    const success = xps.PrintWindow(hwnd, memDC, xps.PRINT_WINDOW_FLAGS.C);
+    const success = xps.PrintWindow(hwnd, memDC, .A);
     if (success == 0) return error.PrintWindowFailed;
 
     // --- Convert HBITMAP to raw pixel buffer ---
