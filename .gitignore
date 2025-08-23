@@ -11,4 +11,6 @@ build/
 build-*/
 docgen_tmp/
 
+*.png
+
 # End of https://www.toptal.com/developers/gitignore/api/zig

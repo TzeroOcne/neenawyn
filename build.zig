@@ -28,7 +28,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const win32 = b.dependency("zigwin32", .{}).module("win32");
     const zigimg = b.dependency("zigimg", .{
         .target = target,
         .optimize = optimize,
@@ -49,7 +48,6 @@ pub fn build(b: *std.Build) void {
     // This is what allows Zig source code to use `@import("foo")` where 'foo' is not a
     // file path. In this case, we set up `exe_mod` to import `lib_mod`.
     exe_mod.addImport("neenawyn_lib", lib_mod);
-    exe_mod.addImport("win32", win32);
     exe_mod.addImport("zigimg", zigimg);
 
     // Now, we will create a static library based on the module we created above.
