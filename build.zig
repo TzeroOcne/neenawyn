@@ -28,11 +28,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const zigimg = b.dependency("zigimg", .{
-        .target = target,
-        .optimize = optimize,
-    }).module("zigimg");
-
     // We will also create a module for our other entry point, 'main.zig'.
     const exe_mod = b.createModule(.{
         // `root_source_file` is the Zig "entry point" of the module. If a module
@@ -44,11 +39,19 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const zigimg = b.dependency("zigimg", .{
+        .target = target,
+        .optimize = optimize,
+    }).module("zigimg");
+
+    const zli = b.dependency("zli", .{ .target = target, .optimize = optimize }).module("zli");
+
     // Modules can depend on one another using the `std.Build.Module.addImport` function.
     // This is what allows Zig source code to use `@import("foo")` where 'foo' is not a
     // file path. In this case, we set up `exe_mod` to import `lib_mod`.
     exe_mod.addImport("neenawyn_lib", lib_mod);
     exe_mod.addImport("zigimg", zigimg);
+    exe_mod.addImport("zli", zli);
 
     // Now, we will create a static library based on the module we created above.
     // This creates a `std.Build.Step.Compile`, which is the build step responsible
