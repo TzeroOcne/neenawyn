@@ -2,10 +2,10 @@ const std = @import("std");
 const zigimg = @import("zigimg");
 const win = @import("win.zig");
 
-pub fn capture(comptime title: []const u8) !void {
+pub fn capture(title: []const u8) !void {
     const allocator = std.heap.page_allocator;
 
-    const window_name = std.unicode.utf8ToUtf16LeStringLiteral(title);
+    const window_name = try std.unicode.utf8ToUtf16LeAllocZ(allocator, title);
 
     const hwnd = win.FindWindow(null, window_name);
     if (hwnd == null) return error.WindowNotFound;
