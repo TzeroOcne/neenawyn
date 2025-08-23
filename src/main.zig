@@ -75,11 +75,11 @@ pub fn main() !void {
         @intCast(width),
         @intCast(height),
         pixels,
-        .bgra32,
+        .rgba32,
     );
     defer image.deinit();
 
-    try image.writeToFilePath("screenshot.bmp", .{ .bmp = .{} });
+    try image.writeToFilePath("screenshot.png", .{ .png = .{} });
 
     //
     // // --- Save using zigimg ---
