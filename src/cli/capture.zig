@@ -20,6 +20,12 @@ pub fn register(allocator: std.mem.Allocator) !*zli.Command {
         .required = true,
     });
 
+    try cmd.addPositionalArg(.{
+        .name = "output",
+        .description = "The output file path for the screenshot (e.g., output.png)",
+        .required = false,
+    });
+
     // We'll add flags and args in the next steps
     return cmd;
 }
@@ -42,5 +48,7 @@ fn runWorkflow(ctx: zli.CommandContext) !void {
         return error.MissingRequiredArg; // Or an appropriate error
     };
 
-    try screenshot.capture(title);
+    const output = ctx.getArg("output") orelse "screenshot.png";
+
+    try screenshot.capture(title, output);
 }

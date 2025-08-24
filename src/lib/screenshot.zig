@@ -2,7 +2,7 @@ const std = @import("std");
 const zigimg = @import("zigimg");
 const win = @import("win.zig");
 
-pub fn capture(title: []const u8) !void {
+pub fn capture(title: []const u8, output: []const u8) !void {
     const allocator = std.heap.page_allocator;
 
     const window_name = try std.unicode.utf8ToUtf16LeAllocZ(allocator, title);
@@ -61,13 +61,8 @@ pub fn capture(title: []const u8) !void {
     const lines = win.GetDIBits(memDC, bitmap, 0, @intCast(height), &pixels[0], &bmp_info, .RGB_COLORS);
     if (lines == 0) return error.GetDIBitsFailed;
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-
-    const gpaallocator = gpa.allocator();
-
     var image = try zigimg.Image.fromRawPixels(
-        gpaallocator,
+        allocator,
         @intCast(width),
         @intCast(height),
         pixels,
@@ -75,18 +70,5 @@ pub fn capture(title: []const u8) !void {
     );
     defer image.deinit();
 
-    try image.writeToFilePath("screenshot.png", .{ .png = .{} });
-
-    //
-    // // --- Save using zigimg ---
-    // var img = try zigimg.Image(.{
-    //     .width = width,
-    //     .height = height,
-    //     .format = zigimg.PixelFormat.RGBA8,
-    //     .pixels = pixels,
-    // });
-    //
-    // try img.writePNG(allocator, "screenshot.png");
-    //
-    // std.debug.print("Saved screenshot.png\n", .{});
+    try image.writeToFilePath(output, .{ .png = .{} });
 }
