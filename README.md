@@ -26,7 +26,11 @@ Make sure [Zig](https://ziglang.org/) is installed:
 zig build
 ~~~
 
-The executable will be available as `wyn.exe` in `./build/`.
+The executable will be available as `wyn.exe` in:
+
+~~~
+./zig-out/bin/
+~~~
 
 ## Usage
 
