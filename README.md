@@ -1,11 +1,12 @@
 # Neenawyn
 
-**Neenawyn** is a command-line tool that captures screenshots of a specified window based on its title.  
+**Neenawyn** is a command-line tool that captures screenshots of a specified window based on its title or handle (HWND).  
 It is built in **Zig** and currently supports **Windows only**.
 
 ## Features
 
-- Capture screenshots of a specific window by its title.
+- Capture screenshots of a specific window by its **title**.
+- Capture screenshots using a window **handle (HWND)**.
 - Save screenshots to a custom file path.
 - Lightweight and fast CLI tool.
 
@@ -34,7 +35,7 @@ The executable will be available as `wyn.exe` in:
 
 ## Usage
 
-Basic usage:
+### By Window Title
 
 ~~~
 wyn.exe capture "Window Title" "C:\path\to\screenshot.png"
@@ -50,6 +51,16 @@ wyn.exe capture "ZenlessZoneZero" "C:\Users\You\Pictures\screen.png"
 ~~~
 
 This will capture the `ZenlessZoneZero` window and save it as `screen.png`.
+
+### By HWND
+
+You can also capture using the **window handle (HWND)** instead of the title:
+
+~~~
+wyn.exe capture --hwnd 123456 "C:\Users\You\Pictures\hwnd_capture.png"
+~~~
+
+This will capture the window with handle `123456` and save it as `hwnd_capture.png`.
 
 ## Contributing
 
