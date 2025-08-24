@@ -26,14 +26,14 @@ Make sure [Zig](https://ziglang.org/) is installed:
 zig build
 ~~~
 
-The executable will be available in `./build/`.
+The executable will be available as `wyn.exe` in `./build/`.
 
 ## Usage
 
 Basic usage:
 
 ~~~
-neenawyn capture "Window Title" "C:\path\to\screenshot.png"
+wyn.exe capture "Window Title" "C:\path\to\screenshot.png"
 ~~~
 
 - `"Window Title"` — The exact title of the window to capture.
@@ -42,7 +42,7 @@ neenawyn capture "Window Title" "C:\path\to\screenshot.png"
 Example:
 
 ~~~
-neenawyn capture "ZenlessZoneZero" "C:\Users\You\Pictures\screen.png"
+wyn.exe capture "ZenlessZoneZero" "C:\Users\You\Pictures\screen.png"
 ~~~
 
 This will capture the `ZenlessZoneZero` window and save it as `screen.png`.
