@@ -61,6 +61,15 @@ pub fn capture(title: []const u8, output: []const u8) !void {
     const lines = win.GetDIBits(memDC, bitmap, 0, @intCast(height), &pixels[0], &bmp_info, .RGB_COLORS);
     if (lines == 0) return error.GetDIBitsFailed;
 
+    var i: usize = 0;
+    while (i < total) : (i += 4) {
+        const b = pixels[i + 0];
+        const r = pixels[i + 2];
+
+        pixels[i + 0] = r; // R
+        pixels[i + 2] = b; // B
+    }
+
     var image = try zigimg.Image.fromRawPixels(
         allocator,
         @intCast(width),
