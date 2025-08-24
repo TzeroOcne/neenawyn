@@ -8,8 +8,15 @@ pub fn capture(title: []const u8, output: []const u8) !void {
     const window_name = try std.unicode.utf8ToUtf16LeAllocZ(allocator, title);
 
     const hwnd = win.FindWindow(null, window_name);
-    if (hwnd == null) return error.WindowNotFound;
+    if (hwnd) |h| {
+        try captureWindow(h, output);
+    } else {
+        return error.WindowNotFound;
+    }
+}
 
+pub fn captureWindow(hwnd: win.HWND, output: []const u8) !void {
+    const allocator = std.heap.page_allocator;
     _ = win.SetProcessDPIAware();
 
     var rect: win.RECT = undefined;
