@@ -6,6 +6,7 @@ const zli = @import("zli");
 // const run_cmd = @import("run.zig");
 // const version_cmd = @import("version.zig");
 const capture = @import("capture.zig");
+const serve = @import("serve.zig");
 
 // This function will be called to construct the root command
 pub fn build(allocator: std.mem.Allocator) !*zli.Command {
@@ -23,6 +24,13 @@ pub fn build(allocator: std.mem.Allocator) !*zli.Command {
         // try run_cmd.register(allocator),
         // try version_cmd.register(allocator),
         try capture.register(allocator),
+    });
+
+    // Register subcommands
+    try root.addCommands(&.{
+        // try run_cmd.register(allocator),
+        // try version_cmd.register(allocator),
+        try serve.register(allocator),
     });
 
     return root;

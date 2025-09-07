@@ -1,6 +1,10 @@
 pub const HWND = *opaque {};
-
 pub const HDC = *opaque {};
+pub const UINT = c_uint;
+pub const WPARAM = usize;
+pub const LPARAM = isize;
+pub const LRESULT = isize;
+pub const DWORD = c_ulong;
 
 pub const RECT = extern struct {
     left: i32,
@@ -49,9 +53,54 @@ pub const DIB_USAGE = enum(u32) {
     PAL_COLORS = 1,
 };
 
+pub const MSG = extern struct {
+    hwnd: HWND,
+    message: UINT,
+    wParam: WPARAM,
+    lParam: LPARAM,
+    time: DWORD,
+    pt: extern struct { x: c_long, y: c_long },
+};
+
 const root = @import("root");
 pub const UnicodeMode = enum { ansi, wide, unspecified };
 pub const unicode_mode: UnicodeMode = if (@hasDecl(root, "UNICODE")) (if (root.UNICODE) .wide else .ansi) else .unspecified;
+
+pub extern "user32" fn RegisterHotKey(
+    hWnd: ?HWND,
+    id: c_int,
+    fsModifiers: UINT,
+    vk: UINT,
+) callconv(.C) BOOL;
+
+pub extern "user32" fn UnregisterHotKey(
+    hWnd: ?HWND,
+    id: c_int,
+) callconv(.C) BOOL;
+
+pub extern "user32" fn GetMessageA(
+    lpMsg: *MSG,
+    hWnd: ?HWND,
+    wMsgFilterMin: UINT,
+    wMsgFilterMax: UINT,
+) callconv(.C) c_int;
+
+// Hotkey modifiers
+pub const MOD_ALT: UINT = 0x0001;
+pub const MOD_CONTROL: UINT = 0x0002;
+pub const MOD_SHIFT: UINT = 0x0004;
+pub const MOD_WIN: UINT = 0x0008;
+
+// Messages
+pub const WM_HOTKEY: UINT = 0x0312;
+
+pub extern "user32" fn GetForegroundWindow() callconv(.C) HWND;
+
+pub extern "user32" fn TranslateMessage(lpMsg: *const MSG) callconv(.C) BOOL;
+
+pub extern "user32" fn DispatchMessageA(lpMsg: *const MSG) callconv(.C) LRESULT;
+
+pub extern "user32" fn PostQuitMessage(exitCode: c_int) callconv(.C) void;
 
 // TODO: this type is limited to platform 'windows5.0'
 pub extern "user32" fn FindWindowA(
